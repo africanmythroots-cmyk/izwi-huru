@@ -8,14 +8,15 @@
   $: profile = data.profile;
 </script>
 
+<svelte:head>
+  <title>{profile ? `@${profile.handle} — Izwi Huru` : 'User — Izwi Huru'}</title>
+  <!-- Do not index user profiles — protect pseudonymous users from search engine exposure -->
+  <meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 {#if !profile}
   <p class="text-center text-surface-400 py-16">{$_('error.notFound')}</p>
 {:else}
-  <svelte:head>
-    <title>@{profile.handle} — Izwi Huru</title>
-    <!-- Do not index user profiles — protect pseudonymous users from search engine exposure -->
-    <meta name="robots" content="noindex, nofollow" />
-  </svelte:head>
 
   <div class="max-w-lg mx-auto">
     <header class="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6 mb-6">

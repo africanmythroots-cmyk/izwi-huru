@@ -11,13 +11,16 @@
   $: replies = data.replies ?? [];
 </script>
 
+<svelte:head>
+  <title>{post ? `Thread by @${post.author.handle} — Izwi Huru` : 'Thread — Izwi Huru'}</title>
+  {#if post}
+    <meta name="description" content="Thread on Izwi Huru — {post.body.slice(0, 120)}" />
+  {/if}
+</svelte:head>
+
 {#if !post}
   <p class="text-center text-surface-400 py-16">{$_('error.notFound')}</p>
 {:else}
-  <svelte:head>
-    <title>Thread by @{post.author.handle} — Izwi Huru</title>
-    <meta name="description" content="Thread on Izwi Huru — {post.body.slice(0, 120)}" />
-  </svelte:head>
 
   <!-- Root post (full, not compact) -->
   <div class="mb-4 bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 px-4">
