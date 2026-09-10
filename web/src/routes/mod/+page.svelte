@@ -47,6 +47,8 @@
     }
     taking = null;
     rationale = '';
+  function selectTab(val: string) {
+    activeTab = val as 'queue' | 'gov';
   }
 </script>
 
@@ -66,7 +68,7 @@
     <button
       role="tab"
       aria-selected={activeTab === val}
-      on:click={() => (activeTab = val as 'queue' | 'gov')}
+      on:click={() => selectTab(val)}
       class="px-4 py-2 text-sm font-medium border-b-2 transition-colors
         {activeTab === val
           ? 'border-brand-500 text-brand-600 dark:text-brand-400'

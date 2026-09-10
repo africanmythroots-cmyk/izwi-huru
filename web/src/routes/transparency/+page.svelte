@@ -12,6 +12,9 @@
     acc[row.requestingCountry] = [...(acc[row.requestingCountry] ?? []), row];
     return acc;
   }, {} as Record<string, SummaryRow[]>);
+  function selectTab(val: string) {
+    activeTab = val as typeof activeTab;
+  }
 </script>
 
 <svelte:head>
@@ -32,7 +35,7 @@
 <div class="flex gap-1 mb-6 border-b border-surface-200 dark:border-surface-800" role="tablist">
   {#each [['reports', 'Quarterly reports'], ['requests', 'Government requests'], ['events', 'Event log']] as [val, label]}
     <button role="tab" aria-selected={activeTab === val}
-      on:click={() => (activeTab = val as typeof activeTab)}
+      on:click={() => selectTab(val)}
       class="px-4 py-2 text-sm font-medium border-b-2 transition-colors
         {activeTab === val
           ? 'border-brand-500 text-brand-600 dark:text-brand-400'

@@ -44,3 +44,5 @@ secrets/
 *.pem
 *.key
 *.asc
+
+.vercel

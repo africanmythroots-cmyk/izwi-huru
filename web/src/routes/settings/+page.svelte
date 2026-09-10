@@ -74,8 +74,8 @@
     newMnemonic = null;
   }
 
-  function applyTheme(t: 'light' | 'dark' | 'system') {
-    theme = t;
+  function applyTheme(t: string) {
+    theme = t as 'light' | 'dark' | 'system';
     const root = document.documentElement;
     if (t === 'dark') root.classList.add('dark');
     else if (t === 'light') root.classList.remove('dark');
@@ -171,7 +171,7 @@
     <p class="text-sm font-medium mb-2">{$_('settings.theme')}</p>
     <div class="flex gap-2" role="group" aria-label="Theme">
       {#each [['light', $_('settings.theme.light')], ['dark', $_('settings.theme.dark')], ['system', $_('settings.theme.system')]] as [val, label]}
-        <button on:click={() => applyTheme(val as 'light' | 'dark' | 'system')}
+        <button on:click={() => applyTheme(val)}
           class="px-4 py-2 rounded-full text-sm border transition-colors min-h-[44px]
             {theme === val
               ? 'bg-brand-500 border-brand-500 text-white'
