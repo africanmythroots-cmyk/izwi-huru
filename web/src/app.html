@@ -1,0 +1,26 @@
+<!-- src/app.html -->
+<!doctype html>
+<html lang="%sveltekit.lang%" dir="%sveltekit.dir%">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#f28210" />
+
+    <!-- No referrer outside origin -->
+    <meta name="referrer" content="same-origin" />
+
+    <!-- Prevent search engines from indexing user content (privacy) -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover" class="bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-50">
+    <div id="svelte">%sveltekit.body%</div>
+  </body>
+</html>

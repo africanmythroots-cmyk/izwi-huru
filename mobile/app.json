@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Izwi Huru",
+    "slug": "izwi-huru",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#f8f7f4"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "org.izwihuru.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#f8f7f4"
+      },
+      "package": "org.izwihuru.app",
+      "permissions": [
+        "INTERNET"
+      ]
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-sqlite"
+    ]
+  }
+}

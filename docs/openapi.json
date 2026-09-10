@@ -1,0 +1,304 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Izwi Huru API",
+    "version": "0.1.0",
+    "description": "Pan-African discussion platform API designed for privacy, pseudonymous participation, and censorship resistance."
+  },
+  "servers": [
+    { "url": "https://izwihuru.org", "description": "Primary domain" },
+    { "url": "https://izwi-huru.net", "description": "Mirror domain 1" },
+    { "url": "https://izwihuru.io", "description": "Mirror domain 2" }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new pseudonymous account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["handle", "passphrase", "captchaPayload"],
+                "properties": {
+                  "handle": { "type": "string", "minLength": 3, "maxLength": 30 },
+                  "passphrase": { "type": "string", "minLength": 10 },
+                  "captchaPayload": { "type": "string" },
+                  "wantsRecovery": { "type": "boolean", "default": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Account created and session cookie set" },
+          "400": { "description": "Validation error or invalid CAPTCHA" },
+          "409": { "description": "Handle already taken" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Log in to an existing account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["handle", "passphrase"],
+                "properties": {
+                  "handle": { "type": "string" },
+                  "passphrase": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Authenticated, session cookie issued" },
+          "401": { "description": "Invalid credentials (constant-time response)" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Invalidate current session",
+        "responses": {
+          "200": { "description": "Session invalidated" }
+        }
+      }
+    },
+    "/auth/recover": {
+      "post": {
+        "summary": "Reset passphrase using client-derived recovery token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["handle", "recoveryToken", "newPassphrase"],
+                "properties": {
+                  "handle": { "type": "string" },
+                  "recoveryToken": { "type": "string" },
+                  "newPassphrase": { "type": "string", "minLength": 10 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Passphrase updated, all active sessions cleared" },
+          "401": { "description": "Recovery token mismatch" }
+        }
+      }
+    },
+    "/feed": {
+      "get": {
+        "summary": "Retrieve chronological feed (followed spaces or all)",
+        "parameters": [
+          { "name": "cursor", "in": "query", "schema": { "type": "string" } },
+          { "name": "spaceSlug", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Chronological posts feed" }
+        }
+      }
+    },
+    "/feed/trending": {
+      "get": {
+        "summary": "Retrieve trust-weighted trending feed (opt-in)",
+        "parameters": [
+          { "name": "window", "in": "query", "schema": { "type": "string", "enum": ["24", "48", "168"] } },
+          { "name": "spaceSlug", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Trending posts feed" }
+        }
+      }
+    },
+    "/posts": {
+      "post": {
+        "summary": "Create a new post or thread reply",
+        "security": [{ "sessionAuth": [] }, { "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["body"],
+                "properties": {
+                  "spaceId": { "type": "string", "format": "uuid" },
+                  "body": { "type": "string", "maxLength": 10000 },
+                  "parentId": { "type": "string", "format": "uuid" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Post created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/posts/{id}": {
+      "get": {
+        "summary": "Get a single post by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "Post details" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/posts/{id}/replies": {
+      "get": {
+        "summary": "Get replies for a post",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "cursor", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Replies list" }
+        }
+      }
+    },
+    "/posts/{id}/vote": {
+      "post": {
+        "summary": "Vote on a post (+1 or -1)",
+        "security": [{ "sessionAuth": [] }, { "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["value"],
+                "properties": { "value": { "type": "integer", "enum": [1, -1] } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Vote recorded" }
+        }
+      }
+    },
+    "/posts/{id}/amplify": {
+      "post": {
+        "summary": "Amplify a post without exposing user identity",
+        "security": [{ "sessionAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Amplified" }
+        }
+      }
+    },
+    "/posts/{id}/flag": {
+      "post": {
+        "summary": "Report a post for a violation of the Pan-African Charter",
+        "security": [{ "sessionAuth": [] }, { "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["reason"],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": ["doxxing", "incitement", "hate_speech", "threat", "harassment", "non_consensual_intimate", "coordinated_inauthenticity", "other"]
+                  },
+                  "detail": { "type": "string", "maxLength": 500 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Flag submitted; auto-queued if threshold reached" }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Get authenticated user profile",
+        "security": [{ "sessionAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Profile data" }
+        }
+      },
+      "patch": {
+        "summary": "Update user passphrase",
+        "security": [{ "sessionAuth": [] }, { "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currentPassphrase", "newPassphrase"],
+                "properties": {
+                  "currentPassphrase": { "type": "string" },
+                  "newPassphrase": { "type": "string", "minLength": 10 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Passphrase changed" }
+        }
+      }
+    },
+    "/transparency/reports": {
+      "get": {
+        "summary": "List all public quarterly transparency reports",
+        "responses": {
+          "200": { "description": "Reports list" }
+        }
+      }
+    },
+    "/transparency/requests": {
+      "get": {
+        "summary": "Aggregated government requests summary",
+        "responses": {
+          "200": { "description": "Aggregated requests list" }
+        }
+      }
+    },
+    "/transparency/events": {
+      "get": {
+        "summary": "Public transparency events log",
+        "responses": {
+          "200": { "description": "Events list" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Service health check",
+        "responses": {
+          "200": { "description": "Service healthy" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
