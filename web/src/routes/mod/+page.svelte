@@ -47,6 +47,8 @@
     }
     taking = null;
     rationale = '';
+  }
+
   function selectTab(val: string) {
     activeTab = val as 'queue' | 'gov';
   }
