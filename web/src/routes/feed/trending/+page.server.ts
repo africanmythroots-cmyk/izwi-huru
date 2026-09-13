@@ -8,9 +8,13 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
   const params = new URLSearchParams({ window });
   if (spaceSlug) params.set('spaceSlug', spaceSlug);
 
-  const res = await fetch(`/feed/trending?${params}`, { credentials: 'include' });
-  if (!res.ok) return { posts: [], spaceSlug };
+  try {
+    const res = await fetch(`/feed/trending?${params}`, { credentials: 'include' });
+    if (!res.ok) return { posts: [], spaceSlug };
 
-  const data = await res.json();
-  return { posts: data.trending ?? [], spaceSlug };
+    const data = await res.json();
+    return { posts: data.trending ?? [], spaceSlug };
+  } catch {
+    return { posts: [], spaceSlug };
+  }
 };

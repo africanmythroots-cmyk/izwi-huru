@@ -2,15 +2,19 @@
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
-  const [reportsRes, requestsRes, eventsRes] = await Promise.all([
-    fetch('/transparency/reports'),
-    fetch('/transparency/requests'),
-    fetch('/transparency/events'),
-  ]);
+  try {
+    const [reportsRes, requestsRes, eventsRes] = await Promise.all([
+      fetch('/transparency/reports').catch(() => null),
+      fetch('/transparency/requests').catch(() => null),
+      fetch('/transparency/events').catch(() => null),
+    ]);
 
-  const { reports }  = reportsRes.ok  ? await reportsRes.json()  : { reports: [] };
-  const { summary }  = requestsRes.ok ? await requestsRes.json() : { summary: [] };
-  const { events }   = eventsRes.ok   ? await eventsRes.json()   : { events: [] };
+    const { reports } = reportsRes && reportsRes.ok ? await reportsRes.json() : { reports: [] };
+    const { summary } = requestsRes && requestsRes.ok ? await requestsRes.json() : { summary: [] };
+    const { events } = eventsRes && eventsRes.ok ? await eventsRes.json() : { events: [] };
 
-  return { reports, requestSummary: summary, events };
+    return { reports: reports ?? [], requestSummary: summary ?? [], events: events ?? [] };
+  } catch {
+    return { reports: [], requestSummary: [], events: [] };
+  }
 };
