@@ -3,6 +3,7 @@
      the client derives the recovery token, which is what gets sent to the server. -->
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { deriveRecoveryToken } from '$lib/bip39';
 
   let handle = '';
   let mnemonic = '';
@@ -10,20 +11,6 @@
   let loading = false;
   let error = '';
   let success = false;
-
-  // Client-side: derive the recovery token from the mnemonic.
-  // Mirrors the server-side logic in crypto.ts: SHA-256(first 32 bytes of BIP39 seed)
-  async function deriveRecoveryToken(mnemonic: string): Promise<string> {
-    const { mnemonicToSeedSync } = await import('bip39');
-    const seed = mnemonicToSeedSync(mnemonic.trim().toLowerCase());
-    const slice = seed.slice(0, 32);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', slice);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-    // Base64url encode to match server-side output
-    return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();

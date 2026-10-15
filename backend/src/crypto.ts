@@ -88,6 +88,10 @@ export function generateRecoveryMnemonic(): string {
   return generateMnemonic(128); // 128 bits of entropy = 12 words
 }
 
+export function validateRecoveryMnemonic(mnemonic: string): boolean {
+  return validateMnemonic(mnemonic);
+}
+
 /**
  * Derive a deterministic recovery token from the mnemonic.
  * The user presents this token to reset their passphrase.

@@ -3,7 +3,7 @@
 // Scheduled by a cron: 0 9 1 1,4,7,10 * (9am on the 1st of Jan, Apr, Jul, Oct)
 
 import { Queue, Worker } from 'bullmq';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { generateAndPublishReport, currentQuarter, previousQuarter } from './reportGenerator.js';
 import { env } from '../env.js';
 

@@ -20,9 +20,10 @@ export const sql = postgres(env.DATABASE_URL, {
  * Run a one-shot query. Thin wrapper for clarity at call sites.
  * Use `sql` directly for complex queries or transactions.
  */
-export async function query<T>(
+export async function query<T = any>(
   strings: TemplateStringsArray,
-  ...values: unknown[]
+  ...values: any[]
 ): Promise<T[]> {
-  return sql<T[]>(strings, ...values);
+  const rows = await (sql as any)(strings, ...values);
+  return rows as unknown as T[];
 }

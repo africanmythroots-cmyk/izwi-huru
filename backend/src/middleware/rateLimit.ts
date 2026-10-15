@@ -6,7 +6,7 @@
 
 import type { FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { env } from '../env.js';
 
 let redis: Redis | null = null;

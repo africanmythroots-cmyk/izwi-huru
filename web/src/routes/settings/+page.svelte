@@ -2,6 +2,7 @@
 <script lang="ts">
   import { _ } from '$lib/i18n';
   import { locale } from '$lib/i18n';
+  import { generateRecoveryMnemonic, deriveRecoveryToken, deriveRecoveryTokenHash } from '$lib/bip39';
 
   let currentPassphrase = '';
   let newPassphrase = '';
@@ -49,25 +50,22 @@
 
   async function generateNewRecovery() {
     generatingRecovery = true;
-    // Recovery mnemonic is generated client-side; server stores only the hash
-    const { generateMnemonic } = await import('bip39');
-    newMnemonic = generateMnemonic(128);
-    generatingRecovery = false;
+    try {
+      newMnemonic = await generateRecoveryMnemonic();
+    } finally {
+      generatingRecovery = false;
+    }
   }
 
   async function confirmNewRecovery() {
     if (!newMnemonic) return;
-    // Derive the token and register it with the server
-    const { mnemonicToSeedSync } = await import('bip39');
-    const seed = mnemonicToSeedSync(newMnemonic);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', seed.slice(0, 32));
-    const hashArr = Array.from(new Uint8Array(hashBuffer));
-    const hex = hashArr.map((b) => b.toString(16).padStart(2, '0')).join('');
+    const token = await deriveRecoveryToken(newMnemonic);
+    const recoveryTokenHash = await deriveRecoveryTokenHash(token);
 
     await fetch('/users/me/recovery', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recoveryTokenHash: hex }),
+      body: JSON.stringify({ recoveryTokenHash }),
       credentials: 'include',
     });
     mnemonicConfirmed = true;

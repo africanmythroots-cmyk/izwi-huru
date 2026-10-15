@@ -80,7 +80,7 @@ export async function aggregateQuarter(quarter: string): Promise<QuarterStats> {
     `,
   ]);
 
-  const byCountry = (govRows as Array<{ requestingCountry: string; requestType: string; outcome: string; count: string }>)
+  const byCountry = (govRows as unknown as Array<{ requestingCountry: string; requestType: string; outcome: string; count: string }>)
     .map((r) => ({ country: r.requestingCountry, type: r.requestType, outcome: r.outcome, count: parseInt(r.count, 10) }));
 
   const govTotal    = byCountry.reduce((s, r) => s + r.count, 0);
@@ -90,13 +90,13 @@ export async function aggregateQuarter(quarter: string): Promise<QuarterStats> {
   const govPending  = byCountry.filter((r) => r.outcome === 'pending').reduce((s, r) => s + r.count, 0);
 
   const modMap = Object.fromEntries(
-    (modRows as Array<{ tier: number; count: string }>).map((r) => [r.tier, parseInt(r.count, 10)])
+    (modRows as unknown as Array<{ tier: number; count: string }>).map((r) => [r.tier, parseInt(r.count, 10)])
   );
   const escalMap = Object.fromEntries(
-    (escalationRows as Array<{ eventType: string; count: string }>).map((r) => [r.eventType, parseInt(r.count, 10)])
+    (escalationRows as unknown as Array<{ eventType: string; count: string }>).map((r) => [r.eventType, parseInt(r.count, 10)])
   );
   const eventMap = Object.fromEntries(
-    (eventRows as Array<{ eventType: string; count: string }>).map((r) => [r.eventType, parseInt(r.count, 10)])
+    (eventRows as unknown as Array<{ eventType: string; count: string }>).map((r) => [r.eventType, parseInt(r.count, 10)])
   );
 
   return {
